@@ -84,7 +84,7 @@ public class HomeController {
 	//========To View all Products==========
 	@GetMapping("/viewAllProducts")
 	public ResponseEntity<?> viewAllProducts() {
-		System.out.println("Has set the object in session : "+session.getAttribute("userObj"));
+		//System.out.println("Has set the object in session : "+session.getAttribute("userObj"));
 		List<Product> list =  proService.viewAllProducts();
 		if(list.size()!=0)
 		{
@@ -150,6 +150,21 @@ public class HomeController {
 		 
 			 return new ResponseEntity<String>("Problem in raising request",HttpStatus.INTERNAL_SERVER_ERROR);
 		
+		
+	}
+	
+	@RequestMapping(value="viewPOS",method=RequestMethod.GET)
+	public  ResponseEntity<?>  getAllUsers()
+	{
+		
+		List<PurchaseOrder> list = poDao.viewAllOrders();
+		if(list.size()!=0)
+		{
+			return new ResponseEntity<List<PurchaseOrder>>(list,HttpStatus.OK);
+		}
+		else {
+			return new ResponseEntity<String>("List empty",HttpStatus.OK);	
+		}
 		
 	}
 	

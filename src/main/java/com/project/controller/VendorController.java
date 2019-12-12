@@ -3,6 +3,8 @@ package com.project.controller;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.project.dao.VendorProductDao;
+import com.project.model.PurchaseOrder;
 import com.project.model.User;
 import com.project.model.VendorProduct;
 
@@ -24,27 +27,35 @@ public class VendorController {
 	@Autowired
 	HttpSession session;
 
-		@RequestMapping(value="/updateProductQuantity",method=RequestMethod.POST)
-		public ModelAndView addInVendorproductTable(@RequestParam int pId  , @RequestParam int quantity)
+		@RequestMapping(value="/updateProductQuantity",method=RequestMethod.GET)
+		public ResponseEntity<?> addInVendorproductTable(@RequestParam(name="productId") int productId  , 
+				@RequestParam(name="quantity") int quantity,@RequestParam(name="vendorId")int vendorId)
 		{
-			User userObj=(User)session.getAttribute("userObj");	
-			VendorProduct r=vendorDaoObj.checkProductForVendor(userObj.getUserId(), pId); 
+			
+			VendorProduct r=vendorDaoObj.checkProductForVendor(vendorId, productId); 
 			if(r!=null) {
 				r.setQuantity(r.getQuantity()+quantity);      
 			}
 			else {
 				r = new VendorProduct();			
-				r.setVendorId(userObj.getUserId());
-				r.setProductId(pId);
+				r.setVendorId(vendorId);
+				r.setProductId(productId);
 				r.setQuantity(quantity);
 			}
 			
-			vendorDaoObj.add(r);                    
+			boolean re=vendorDaoObj.add(r);                    
 			
-			ModelAndView mv=new ModelAndView("VendorPage");
-			mv.addObject("msg","Product Quantity Added Succesfully");
-			return mv;
+			 if(re) {
+				 	return new ResponseEntity<Object>(r,HttpStatus.OK);
+			 }
+			 else
+			 
+				 return new ResponseEntity<String>("Problem in adding quantity",HttpStatus.INTERNAL_SERVER_ERROR);
+			
 		}
+		
+		
+		
 
 
 }
